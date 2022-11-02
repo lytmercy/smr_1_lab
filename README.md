@@ -1,1 +1,1 @@
-# statistic_recognition_method_labs
+#  Labs work from Statistical Methods of Recognition
