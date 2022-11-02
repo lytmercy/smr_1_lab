@@ -1,0 +1,1 @@
+# statistic_recognition_method_labs
