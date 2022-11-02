@@ -1,75 +1,52 @@
-from PIL import Image
 import numpy as np
-import mnist
 
-# Set global variables
+# Set global variables of gray scale in ASCII
 GRAYSCALE = "@%#*+=-:. "  # 10 levels of gray
 
 
-def convert_array_to_ascii_art(img_array, cols, scale):
-    """"""
+def convert_array_to_ascii_art(img_array):
+    """Function for transforming image value to ASCII char for creating ASCII art."""
+    # Define global variable
     global GRAYSCALE
+    # Set image height and width
     height, width = img_array.shape
     print(f"image shape: {width} x {height}")
 
-    # tile_width = Width/cols
-    # tile_height = tile_width/scale
-
-    # rows = int(Height/tile_height)
-
-    # print(f"cols: {cols}, rows: {rows}")
-    # print(f"tile dims: {tile_width} x {tile_height}")
-
-    # if cols > Width or rows > Height:
-    #     print("Image too small for specified cols!")
-    #     exit(0)
-
+    # Define ascii_image array
     ascii_image = []
 
     # Generate list of dimensions
     for j in range(height):
-        # y1 = int(j*tile_height)
-        # y2 = int((j+1)*tile_height)
-        # correct last tile
-        # if j == rows-1:
-        #     y2 = Height
-        # append an empty string
+        # Add string to each row in ASCII image
         ascii_image.append("")
         for i in range(width):
-            # crop image to tile
-            # x1 = int(i*tile_width)
-            # x2 = int((i+1)*tile_width)
-            # correct last tile
-            # if i == cols-1:
-            #     x2 = Width
-            # crop image to extract tile
-            # image_tile = img_array.crop((x1, y1, x2, y2))
-            # get average luminance
-            # avg = int(get_avrg_grayscale(image))
+            # Take one element from image of number
             image_tile = img_array[j][i]
-            # look up ascii char
+            # Look up ascii char for making ASCII art
             gsval = GRAYSCALE[int(image_tile*9)]
-
-            # append ascii char to string
+            # append ascii char to string with space
             ascii_image[j] += gsval + " "
 
     return ascii_image
 
 
-def print_image_in_console(image, cols, scale, what_the_image):
-    """"""
+def print_image_in_console(image, what_the_image):
+    """Function for printing image as ASCII art and presenting which image is (etalon or not)."""
+    # Print image title (etalon or not)
     print(f"It's {what_the_image}")
-    ascii_image = convert_array_to_ascii_art(image, cols, scale)
+    # Call function for transforming our number to ASCII art
+    ascii_image = convert_array_to_ascii_art(image)
+    # Print ASCII art per row
     for ascii_row in ascii_image:
         print(ascii_row)
     print("======================")
 
 
 def noising_image(img_array, noise_success=0.73):
-    """"""
+    """Function for making the noising images as ASCII art using Bernoulli noise."""
     # Take shape of image
     img_shape = img_array.shape
-    # Create a binomial distribution.
+    # Create a binomial distribution with image shape
     bernoulli_noise = np.random.binomial(1, noise_success, img_shape)
     # Noising image
     noised_image = img_array + bernoulli_noise
@@ -80,10 +57,12 @@ def noising_image(img_array, noise_success=0.73):
 
 
 def recognition_method(target_image, etalon_images, possible_states):
-    """"""
+    """Function for calculating recognition using the Bayesian recognition formula."""
+    # Define probabilities result for each number
     prob_results = []
     # Calculate for all target_image tales & possible_states
     for i in possible_states:
+        # Define result per number
         result = np.array([])
         for x_row, k_row in zip(target_image, etalon_images[i]):
             for x, k in zip(x_row, k_row):
@@ -137,33 +116,34 @@ def run_lab():
                 [[0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 0], [0, 1, 0, 0, 1, 0], [0, 1, 1, 1, 1, 0], [0, 0, 0, 0, 1, 0],
                  [0, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0]],
                 ]
+    # Define labels
     Y_labels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     # Convert to numpy array
     Y_images = np.array(Y_images)
     # Choose number for recognition
     chosen_number = 6
-    #
+    # Choose an image from the dataset that is our chosen number
     chosen_image = Y_images[chosen_number]
+    # Choose a label from the dataset that is our chosen number
     chosen_label = Y_labels[chosen_number]
+    # Make results
     print("===Print Image in Console===")
-    # image = Image.fromarray(Y_images[6])
     etalon_string = "Etalon Image"
     noise_string = "Noised Image"
     # ASCII image is a list of character strings
-    scale = 1
-    cols = chosen_image.shape[1]
     print("Generating ASCII art...")
     print("======================")
-    # Printing etalon image
-    print_image_in_console(chosen_image, cols, scale, etalon_string)
+    # View etalon image
+    print_image_in_console(chosen_image, etalon_string)
     # Noise image
     noised_image = noising_image(chosen_image, noise_success=0.35)
-    # Printing noised image
-    print_image_in_console(noised_image, cols, scale, noise_string)
-
+    # View noised image
+    print_image_in_console(noised_image, noise_string)
     # Made recognition of image
     result_probs = recognition_method(noised_image, Y_images, Y_labels)
+    # Choose which number have the highest probabilities for program
     pred_label = np.argmax(result_probs)
+    # View result
     print("++++++++++++++++++++++++++")
     print(f"Etalon image is {chosen_label}")
     print(f"Program predicted as {pred_label}")
