@@ -1,1 +1,1 @@
-#  Labs work from Statistical Methods of Recognition
+#  Laboratory works from Statistical Methods of Recognition
